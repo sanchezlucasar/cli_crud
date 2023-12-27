@@ -13,3 +13,5 @@ reemplazar {DATANAME}  por el nombre de la Base De Datos
 reemplazar {PORTDB}  por el puerto de la Base De Datos 
 
 Tener en cuenta que hay que tener POSTGRESQL instalado, y configurado, 
+
+ # 4° escribir en la terminal ´( npm run dev )  para ejecutar

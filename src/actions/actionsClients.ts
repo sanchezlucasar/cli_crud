@@ -1,20 +1,17 @@
 // actions.ts
-'use server'
+
+'use server';
+
 import { NextResponse } from "next/server";
 import prisma from '../../libs/prisma';
-interface Client {
-    id: number;
-    nombre: string;
-    apellido: string;
-    dni: string;
-}
+
 export const createClients = async (data: any) => {
+
     try {
         if (!data) {
-            return { message: "falta la data" };
+            return { message: "No se encuentra la informacion para dar de alta al cliente" };
         }
-        const body = data;
-        const { nombre, apellido, dni } = body;
+        const { nombre, apellido, dni } = data;
 
         const userFound = await prisma.cliente.findUnique({
             where: {
@@ -23,32 +20,34 @@ export const createClients = async (data: any) => {
         });
 
         if (userFound) {
-            return { error: "User already exists" };
+            return 'existe';
         }
+        else {
 
-        const client = await prisma.cliente.create({
-            data: {
-                nombre,
-                apellido,
-                dni,
-            },
-        });
+            const client = await prisma.cliente.create({
+                data: {
+                    nombre,
+                    apellido,
+                    dni,
+                },
+            });
 
-        return client;
+            return NextResponse.json(client);
+        }
     } catch (error) {
         console.log(error);
-        return { error: "Error creating client" };
+        return { error: "Error creando al cliente" };
     }
 };
 
 export const fetchClients = async () => {
     try {
         const clients: any[] = await prisma.cliente.findMany();
-        console.log('aca', clients);
+
         return clients;
 
     } catch (error) {
-        return NextResponse.json({ error: "Error fetching clients" }, { status: 500 });
+        return NextResponse.json({ error: "Error obteniendo los clientes" }, { status: 500 });
     }
 };
 
@@ -64,8 +63,7 @@ export const updateClients = async (data: any) => {
             return NextResponse.json({ message: "El cliente no existe" }, { status: 400 });
         }
 
-        const body = await data;
-        const { nombre, apellido, dni } = body;
+        const { nombre, apellido, dni } = data;
 
         const client = await prisma.cliente.update({
             where: {
@@ -77,13 +75,11 @@ export const updateClients = async (data: any) => {
                 dni: dni,
             },
         });
-        return NextResponse.json(client, { status: 200 });
+        return client;
     } catch (error) {
-        return NextResponse.json({ message: "Error updating client" }, { status: 500 });
+        return NextResponse.json({ message: "Error modificando al cliente" }, { status: 500 });
     }
 };
-
-
 
 export const deleteClient = async (id: number) => {
     try {
@@ -102,8 +98,8 @@ export const deleteClient = async (id: number) => {
                 id: id,
             }
         });
-        return NextResponse.json({ message: 'Cliente Eliminado con éxito' }, { status: 200 });
+        return client;
     } catch (error) {
-        return NextResponse.json({ message: "Error delete client" }, { status: 500 });
+        return NextResponse.json({ message: "Error eliminando el cliente" }, { status: 500 });
     }
 };

@@ -36,12 +36,13 @@ const ClientPage: NextPage = () => {
 
   const onSubmit = handleSubmit(async (data: any) => {
     try {
-      const clientsData = await createClients(data);
-      console.log(clientsData);
-
-      console.log('Cliente creado:', clientsData);
-      setClients([...clients, clientsData]);
-
+      const clientsData = await createClients(JSON.parse(JSON.stringify(data)));
+      if (clientsData == 'existe') alert('Ese dni ya se encuentra ingresado')
+      else {
+        const dato = JSON.parse(JSON.stringify(clientsData));
+        console.log('Cliente creado:', dato);
+        setClients([...clients, clientsData]);
+      }
     } catch (error) {
       console.error('Error:', error);
     }
@@ -80,10 +81,12 @@ const ClientPage: NextPage = () => {
             existingClient.id === updatedClient.id ? updatedClient : existingClient
           );
           setClients(updatedClients);
+          console.log('Cerrando el modal...'); // Agregar mensaje de depuración
+
+          setShowModal(false);
         }
-        // Cierra el modal después de guardar los cambios
-        setShowModal(false);
       }
+
     } catch (error) {
       console.error('Error al actualizar el cliente:', error);
     }
@@ -95,8 +98,12 @@ const ClientPage: NextPage = () => {
         const deleltedClient = await deleteClient(id);
         alert('cliente eliminado')
         setClients([...clients]);
-        // Cierra el modal después de guardar los cambios
+        // Recargar los clientes después de eliminar exitosamente
+        fetchClientsData();
+
+        // Cierra el modal después de eliminar el cliente
         setShowModal(false);
+
       }
     } catch (error) {
       console.error('Error al eliminar el cliente:', error);
