@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form"
 import { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { createClients, deleteClient, fetchClients, updateClients } from '../actions/actionsClients';
-import { TrashIcon, PencilIcon } from '@heroicons/react/outline';
+import { TrashIcon, PencilIcon, DocumentIcon } from '@heroicons/react/outline';
+import jsPDF from 'jspdf';
+
 
 interface Client {
   id: number;
@@ -90,6 +92,44 @@ const ClientPage: NextPage = () => {
     } catch (error) {
       console.error('Error al actualizar el cliente:', error);
     }
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Título del documento
+    doc.setFontSize(18);
+    doc.text('Listado de clientes', 15, 15);
+
+    // Definir las posiciones iniciales de la tabla
+    let y = 25; // Posición vertical para comenzar la tabla
+    const lineHeight = 10; // Altura de línea
+
+    // Datos de los clientes
+    const tableHeaders = ['Nombre', 'Apellido', 'DNI'];
+
+    // Dibujar encabezados de tabla
+    doc.setFont('helvetica', 'bold');
+    tableHeaders.forEach((header, index) => {
+      doc.text(header, 15 + (index * 50), y);
+    });
+
+    // Dibujar una línea bajo los encabezados
+    y += lineHeight;
+    doc.setLineWidth(0.1);
+    doc.line(15, y, 175, y);
+
+    // Dibujar datos de clientes
+    doc.setFont('helvetica', 'normal');
+    clients.forEach((client: Client) => {
+      y += lineHeight;
+      doc.text(client.nombre, 15, y);
+      doc.text(client.apellido, 65, y);
+      doc.text(client.dni, 115, y);
+    });
+
+    // Guardar o mostrar el archivo PDF generado
+    doc.save('listado_clientes.pdf');
   };
 
   const handleDelete = async (id: number) => {
@@ -183,8 +223,16 @@ const ClientPage: NextPage = () => {
                   >
                     <TrashIcon className="w-4 h-4 " /></button>
                 </td>
+
               </tr>
-            ))}
+            ))} <button
+              onClick={generatePDF}
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center"
+              style={{ minWidth: "180px" }} // Ajusta el ancho mínimo según sea necesario
+            >
+              Exportar a PDF
+              <DocumentIcon className="w-6 h-6 ml-2" /> {/* Ajusta el tamaño y margen según sea necesario */}
+            </button>
           </tbody>
         </table>
       </div>
